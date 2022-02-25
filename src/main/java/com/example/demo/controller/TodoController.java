@@ -6,6 +6,7 @@ import com.example.demo.model.TodoEntity;
 import com.example.demo.service.TodoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,12 +20,11 @@ public class TodoController {
     private TodoService todoService;
 
     @PostMapping
-    public ResponseEntity<?> createTodo(@RequestBody TodoDTO dto) {
+    public ResponseEntity<?> createTodo(@AuthenticationPrincipal String userId, @RequestBody TodoDTO dto) {
         try {
-            String tempUserId = "temp-user";
             TodoEntity entity = TodoDTO.toEntity(dto);
             entity.setId(null);
-            entity.setUserId(tempUserId);
+            entity.setUserId(userId);
 
             List<TodoEntity> entities = todoService.create(entity);
 
@@ -42,10 +42,8 @@ public class TodoController {
     }
 
     @GetMapping
-    public ResponseEntity<?> retrieveTodoList() {
-        String tmpUserId = "temp-user";
-
-        List<TodoEntity> entities = todoService.retrieve(tmpUserId);
+    public ResponseEntity<?> retrieveTodoList(@AuthenticationPrincipal String userId) {
+        List<TodoEntity> entities = todoService.retrieve(userId);
 
         List<TodoDTO> dtos = entities.stream().map(TodoDTO::new).collect(Collectors.toList());
 
@@ -55,12 +53,10 @@ public class TodoController {
     }
 
     @PutMapping
-    public ResponseEntity<?> updateTodo(@RequestBody TodoDTO dto) {
-        String tmpUser = "temp-user";
-
+    public ResponseEntity<?> updateTodo(@AuthenticationPrincipal String userId, @RequestBody TodoDTO dto) {
         TodoEntity entity = TodoDTO.toEntity(dto);
 
-        entity.setUserId(tmpUser);
+        entity.setUserId(userId);
 
         List<TodoEntity> entities = todoService.update(entity);
 
@@ -72,12 +68,10 @@ public class TodoController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleteTodo(@RequestBody TodoDTO dto) {
+    public ResponseEntity<?> deleteTodo(@AuthenticationPrincipal String userId, @RequestBody TodoDTO dto) {
         try {
-            String tmpUser = "temp-user";
-
             TodoEntity entity = TodoDTO.toEntity(dto);
-            entity.setUserId(tmpUser);
+            entity.setUserId(userId);
 
             List<TodoEntity> entities = todoService.delete(entity);
 

@@ -7,8 +7,11 @@ import com.example.demo.security.TokenProvider;
 import com.example.demo.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -58,13 +61,17 @@ public class UserController {
                     .token(token)
                     .build();
 
+            ResponseDTO res = ResponseDTO.<UserDTO>builder()
+                    .data((List<UserDTO>) responseUserDTO)
+                    .build();
+
             return ResponseEntity.ok().body(responseUserDTO);
         } else {
             ResponseDTO responseDTO = ResponseDTO.builder()
                     .error("login faild.")
                     .build();
 
-            return ResponseEntity.ok().body(responseDTO);
+            return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
         }
     }
 }
